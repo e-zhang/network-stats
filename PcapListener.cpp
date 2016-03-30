@@ -167,10 +167,11 @@ void PcapListener::IncrementStats( Stats& stat, const pcap_pkthdr* pktHdr ) cons
   stat.max = std::max<int>( stat.max, pktHdr->len );
 }
 
-int PcapListener::GetDropCount()
+int PcapListener::GetDropCount() const
 {
   // get pcap stats if they exist
   pcap_stat pcapStats;
+  // if stats not enabled, or failed
   if( pcap_stats( _pcapFd, &pcapStats ) < 0 ) return 0;
  
   /* if supported, we can get nic drops here
