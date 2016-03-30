@@ -23,11 +23,17 @@
 > ======== Tue Mar 29 20:36:50 2016
 > 
 > Total Stats: 
+>
 >         packets: 177799
+>
 >         min size (bytes): 54
+>
 >         max size (bytes): 6022
+>
 >         avg size (bytes): 101
+>
 >         max rate (pkts/s): 176916
+>
 > IPv4 Stats: 
 >         packets: 177793
 >         min size (bytes): 54
