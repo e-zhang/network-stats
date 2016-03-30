@@ -3,12 +3,13 @@
 
 #include <pcap.h>
 #include <string>
-#include <limits>
+
+#include "Stats.h"
 
 class PcapListener 
 {
 public:
-  PcapListener() = default;
+  PcapListener();
   ~PcapListener();
 
   /** 
@@ -26,37 +27,8 @@ public:
   void Process();
 
 private:
-  constexpr static int STAT_INTERVAL_SECONDS = 10; // 10s print stat interval
-
-  struct Stats
-  {
-    // packet size measurements
-    int min = std::numeric_limits<int>::max();
-    int max = 0;
-    int total = 0;
-    
-    // packet count
-    int count = 0;
-    // TODO: if 1 second intervals is not granular enough, we can increase the
-    // array size to achieve more granular measurements. this is interesting in
-    // the case of bursts
-    int rates[STAT_INTERVAL_SECONDS] = {0}; // per second packet rate
-  };
-
-  struct StatsCollection
-  {
-    // time_t is really just a long int
-    time_t baseTime = 0; // seconds since epoch that this collection started
-    Stats ip_tcp;
-    Stats ip_udp; 
-    Stats ip;
-    Stats ipv6;  // if there is enough adoption, maybe split ipv6 out into udp/tcp
-    Stats total;
-  };
-
   void ProcessPacket( const pcap_pkthdr* pktHdr, const u_char* pktData );
   void IncrementStats( Stats& stat, const pcap_pkthdr* pktHdr ) const;
-  void ResetStats( const timeval& ts );
   void PrintStats( const timeval& ts );
   void PrintStat( const Stats& stat ) const;
 

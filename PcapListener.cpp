@@ -8,8 +8,11 @@
 
 #include <algorithm>
 #include <iostream>
-#include <cstring>
 
+PcapListener::PcapListener()
+{
+  _stats.Reset( 0 );
+}
 
 PcapListener::~PcapListener()
 {
@@ -104,7 +107,7 @@ void PcapListener::ProcessPacket( const pcap_pkthdr* pktHdr, const u_char* pktDa
     // if printing is too much work, we can also offload the stats struct to a
     // queue and pass it off to a background thread to do the logging
     PrintStats( pktHdr->ts );
-    ResetStats( pktHdr->ts );
+    _stats.Reset( pktHdr->ts.tv_sec ); 
   }
 
   // update totals
@@ -145,7 +148,7 @@ void PcapListener::ProcessPacket( const pcap_pkthdr* pktHdr, const u_char* pktDa
   }
 }
 
-void PcapListener::IncrementStats( PcapListener::Stats& stat, const pcap_pkthdr* pktHdr ) const
+void PcapListener::IncrementStats( Stats& stat, const pcap_pkthdr* pktHdr ) const
 {
   int rateIndex = pktHdr->ts.tv_sec - _stats.baseTime;
   assert( rateIndex < STAT_INTERVAL_SECONDS && rateIndex >= 0 );
@@ -155,18 +158,6 @@ void PcapListener::IncrementStats( PcapListener::Stats& stat, const pcap_pkthdr*
   stat.total += pktHdr->len;
   stat.min = std::min<int>( stat.min, pktHdr->len );
   stat.max = std::max<int>( stat.max, pktHdr->len );
-}
-
-void PcapListener::ResetStats( const timeval& ts )
-{
-  // reset the stats to 0 after we print them 
-  memset( &_stats, 0, sizeof( _stats ) );
-  _stats.baseTime = ts.tv_sec;
-  _stats.ip_tcp.min = std::numeric_limits<int>::max();
-  _stats.ip_udp.min = std::numeric_limits<int>::max();
-  _stats.ip.min = std::numeric_limits<int>::max();
-  _stats.ipv6.min = std::numeric_limits<int>::max();
-  _stats.total.min = std::numeric_limits<int>::max();
 }
 
 void PcapListener::PrintStats( const timeval& ts )
@@ -210,7 +201,7 @@ void PcapListener::PrintStats( const timeval& ts )
   std::cout << std::endl;
 }
 
-void PcapListener::PrintStat( const PcapListener::Stats& stat ) const
+void PcapListener::PrintStat( const Stats& stat ) const
 {
   std::cout << "\tpackets: " << stat.count << std::endl; 
   
