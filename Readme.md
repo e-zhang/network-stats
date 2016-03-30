@@ -7,15 +7,15 @@
   * add to LDFLAGS if libpcap.so is not in standard path
   * make should create NetworkStats
   * run with ./NetworkStats <interface name> 
-    ** ./NetworkStats eth0 
+    * ./NetworkStats eth0 
 
 
 ## Files
   * main.cpp: takes a single argument for interface name
   * PcapListener.h, PcapListener.cpp: 
-     ** handles wrapping libpcap objects / function calls
-     ** stores interval stats
-     ** prints stats every 10 seconds to stdout
+    * handles wrapping libpcap objects / function calls
+    * stores interval stats
+    * prints stats every 10 seconds to stdout
 
 
 ## Sample output:
@@ -67,10 +67,10 @@ Some interesting stats to look at per 10 second interval:
   * max rate (stores 10 - 1 second buckets that counts the total number of packets/s to give us more granular packet rates)
 
 Total (all network packets)
-  *IPv4 (all ipv4 packets)
-    ** IPv4 TCP (only ipv4 tcp packets)
-    ** IPv4 UDP (only ipv4 udp packets)
-  *IPv6 traffic
+  * IPv4 (all ipv4 packets)
+   * IPv4 TCP (only ipv4 tcp packets)
+   * IPv4 UDP (only ipv4 udp packets)
+  * IPv6 traffic
 
 Drops show RX buffer drops in the last interval
 Cumulative drops show total RX buffer drops since start of capture
