@@ -77,5 +77,6 @@ Cumulative drops show total RX buffer drops since start of capture
 
 
 ## Future work
-Might be interesting to split out RX/TX
-For libpcaps that have both ps_drop and ps_ifdrop, would be interesting to see NIC level drops as well as kernel level drops
+
+  * Might be interesting to split out RX/TX
+  * For libpcaps that have both ps_drop and ps_ifdrop, would be interesting to see NIC level drops as well as kernel level drops
