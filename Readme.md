@@ -8,6 +8,8 @@
   * make should create NetworkStats
   * run with ./NetworkStats <interface name> 
     * ./NetworkStats eth0 
+    * must have root permissions
+  * tested with GCC 4.9.1 and Centos 6.4
 
 
 ## Files
@@ -20,51 +22,61 @@
 
 ## Sample output:
 
-> ======== Tue Mar 29 20:36:50 2016
+>Total Stats:
+>
+>        packets: 1151311
+>        total size (bytes): 1221635596
+>        min size (bytes): 54
+>        max size (bytes): 2974
+>        avg size (bytes): 1061
+>        max rate (bytes/s): 319069270
+>        max rate (pkts/s): 300598
+>
+>IPv4 Stats:
+>
+>        packets: 1151306
+>        total size (bytes): 1221635033
+>        min size (bytes): 54
+>        max size (bytes): 2974
+>        avg size (bytes): 1061
+>        max rate (bytes/s): 319069150
+>        max rate (pkts/s): 300596
+>
+>IPv4 TCP Stats:
+>
+>        packets: 1475
+>        total size (bytes): 1317808
+>        min size (bytes): 54
+>        max size (bytes): 2974
+>        avg size (bytes): 893
+>        max rate (bytes/s): 587122
+>        max rate (pkts/s): 519
+>
+>IPv4 UDP Stats:
+>
+>        packets: 845
+>        total size (bytes): 81083
+>        min size (bytes): 82
+>        max size (bytes): 243
+>        avg size (bytes): 95
+>        max rate (bytes/s): 9014
+>        max rate (pkts/s): 94
+>
+>IPv6 UDP Stats:
+>
+>        packets: 0
+>        total size (bytes): 0
+>
+>Drops: 20969
+>Cumulative Drops: 50984
 > 
-> Total Stats: 
->
->         packets: 177799
->         min size (bytes): 54
->         max size (bytes): 6022
->         avg size (bytes): 101
->         max rate (pkts/s): 176916
->
-> IPv4 Stats: 
->
->         packets: 177793
->         min size (bytes): 54
->         max size (bytes): 6022
->         avg size (bytes): 101
->         max rate (pkts/s): 176912
->
-> IPv4 TCP Stats: 
->
->         packets: 7660
->         min size (bytes): 54
->         max size (bytes): 6022
->         avg size (bytes): 169
->         max rate (pkts/s): 7571
->
-> IPv4 UDP Stats: 
->
->         packets: 876
->         min size (bytes): 86
->         max size (bytes): 106
->         avg size (bytes): 95
->         max rate (pkts/s): 105
->
-> IPv6 UDP Stats: 
->
->         packets: 0
->
-> Drops: 16210
-> Cumulative Drops: 200171
 
 Some interesting stats to look at per 10 second interval:
   * total packets
+  * total bytes captured
   * min/max/avg packet size
-  * max rate (stores 10 - 1 second buckets that counts the total number of packets/s to give us more granular packet rates)
+  * max byte rate (stores 10 - 1 second buckets that counts the total number of bytes/s to give us more granular rates)
+  * max packet rate (stores 10 - 1 second buckets that counts the total number of packets/s to give us more granular rates)
 
 Total (all network packets)
   * IPv4 (all ipv4 packets)
@@ -97,6 +109,8 @@ on the interface that I captured.
 Turns out, with those ping parameters, I could turn my socket buffers back to
 their original values. I had to turn up both number of preload packets and the
 packet sizes, but I could still induce RX drops in the kernel with pings.
+
+> ping -f -s 2048 -l 4500
 
 
 ## Future work

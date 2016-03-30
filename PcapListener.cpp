@@ -6,9 +6,6 @@
 #include <cassert>
 #include <ctime>
 
-#include <algorithm>
-#include <iostream>
-
 PcapListener::PcapListener()
 {
   _stats.Reset( 0 );
@@ -151,10 +148,13 @@ void PcapListener::ProcessPacket( const pcap_pkthdr* pktHdr, const u_char* pktDa
 void PcapListener::IncrementStats( Stats& stat, const pcap_pkthdr* pktHdr ) const
 {
   int rateIndex = pktHdr->ts.tv_sec - _stats.baseTime;
+  //TODO: turn this into a hard check if we think its possible to happen (i.e.
+  //      pkt hdr times come out of sequence)
   assert( rateIndex < STAT_INTERVAL_SECONDS && rateIndex >= 0 );
   
   ++stat.count; 
-  ++stat.rates[rateIndex];
+  ++stat.packetRates[rateIndex];
+  stat.byteRates[rateIndex] += pktHdr->len;
   stat.total += pktHdr->len;
   stat.min = std::min<int>( stat.min, pktHdr->len );
   stat.max = std::max<int>( stat.max, pktHdr->len );
@@ -166,19 +166,19 @@ void PcapListener::PrintStats( const timeval& ts )
   std::cout << "======== " << std::ctime( &ts.tv_sec ) << std::endl;
 
   std::cout << "Total Stats: " << std::endl;
-  PrintStat( _stats.total );
+  _stats.total.Print();
 
   std::cout << "IPv4 Stats: " << std::endl;
-  PrintStat( _stats.ip );
+  _stats.ip.Print();
 
   std::cout << "IPv4 TCP Stats: " << std::endl;
-  PrintStat( _stats.ip_tcp );
+  _stats.ip_tcp.Print();
 
   std::cout << "IPv4 UDP Stats: " << std::endl;
-  PrintStat( _stats.ip_udp );
+  _stats.ip_udp.Print();
 
   std::cout << "IPv6 UDP Stats: " << std::endl;
-  PrintStat( _stats.ipv6 );
+  _stats.ipv6.Print();
 
   // get pcap stats if they exist
   pcap_stat pcapStats;
@@ -199,20 +199,5 @@ void PcapListener::PrintStats( const timeval& ts )
   }
 
   std::cout << std::endl;
-}
-
-void PcapListener::PrintStat( const Stats& stat ) const
-{
-  std::cout << "\tpackets: " << stat.count << std::endl; 
-  
-  // skip these stats if theres no packets
-  if( stat.count <= 0 ) return;
-
-  std::cout << "\tmin size (bytes): " << stat.min << std::endl; 
-  std::cout << "\tmax size (bytes): " << stat.max << std::endl; 
-  std::cout << "\tavg size (bytes): " << stat.total / stat.count  << std::endl; 
-
-  std::cout << "\tmax rate (pkts/s): " << 
-    *std::max_element( stat.rates, stat.rates + STAT_INTERVAL_SECONDS ) << std::endl;
 }
 

@@ -1,4 +1,4 @@
-CXX=g++
+# CXX=g++
 CXXFLAGS=-c -Wall -Wextra -Werror -std=c++11
 LDFLAGS=-lpcap
 SOURCES=main.cpp PcapListener.cpp
