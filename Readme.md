@@ -25,35 +25,39 @@
 > Total Stats: 
 >
 >         packets: 177799
->
 >         min size (bytes): 54
->
 >         max size (bytes): 6022
->
 >         avg size (bytes): 101
->
 >         max rate (pkts/s): 176916
 >
 > IPv4 Stats: 
+>
 >         packets: 177793
 >         min size (bytes): 54
 >         max size (bytes): 6022
 >         avg size (bytes): 101
 >         max rate (pkts/s): 176912
+>
 > IPv4 TCP Stats: 
+>
 >         packets: 7660
 >         min size (bytes): 54
 >         max size (bytes): 6022
 >         avg size (bytes): 169
 >         max rate (pkts/s): 7571
+>
 > IPv4 UDP Stats: 
+>
 >         packets: 876
 >         min size (bytes): 86
 >         max size (bytes): 106
 >         avg size (bytes): 95
 >         max rate (pkts/s): 105
+>
 > IPv6 UDP Stats: 
+>
 >         packets: 0
+>
 > Drops: 16210
 > Cumulative Drops: 200171
 
