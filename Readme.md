@@ -18,6 +18,9 @@
     * handles wrapping libpcap objects / function calls
     * stores interval stats
     * prints stats every 10 seconds to stdout
+  * Stats.h:
+    * stats objects
+    * handles resets and pretty printing individual stats
 
 
 ## Sample output:
