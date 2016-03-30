@@ -57,17 +57,19 @@ struct Stats
 
 struct StatsCollection
 {
-  // time_t is really just a long int
   time_t baseTime; // seconds since epoch that this collection started
+  int drops;
   Stats ip_tcp;
   Stats ip_udp; 
   Stats ip;
   Stats ipv6;  // if there is enough adoption, maybe split ipv6 out into udp/tcp
   Stats total;
 
-  void Reset( const time_t base )
+  void Reset( const time_t time, const time_t dropCount )
   {
-    baseTime = base;
+    baseTime = time;
+    drops = dropCount;
+
     ip_tcp.Reset();
     ip_udp.Reset();
     ip.Reset();

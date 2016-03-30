@@ -29,12 +29,11 @@ public:
 private:
   void ProcessPacket( const pcap_pkthdr* pktHdr, const u_char* pktData );
   void IncrementStats( Stats& stat, const pcap_pkthdr* pktHdr ) const;
-  void PrintStats( const timeval& ts );
-  void PrintStat( const Stats& stat ) const;
+  int GetDropCount();
+  void PrintStats( const timeval& ts, const int dropCount );
 
   pcap_t* _pcapFd = nullptr;
   StatsCollection _stats;
-  int _pcapDrops = 0;
 };
 
 

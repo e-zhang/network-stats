@@ -8,7 +8,8 @@
 
 PcapListener::PcapListener()
 {
-  _stats.Reset( 0 );
+  // initialize stats containers
+  _stats.Reset( 0, 0 );
 }
 
 PcapListener::~PcapListener()
@@ -99,12 +100,18 @@ void PcapListener::ProcessPacket( const pcap_pkthdr* pktHdr, const u_char* pktDa
   }
 
   // we've reached our 10 second limit
+  // TODO: this essentially is triggered by receiving capture data which should
+  // be a pretty good assumption, but in case of rare packet captures, we can
+  // always add a timer thread or some signal to print. This would also require
+  // us to move to non-blocking reads from libpcap so that we can select between
+  // reads and checking time
   if( pktHdr->ts.tv_sec - _stats.baseTime >= STAT_INTERVAL_SECONDS )
   {
     // if printing is too much work, we can also offload the stats struct to a
     // queue and pass it off to a background thread to do the logging
-    PrintStats( pktHdr->ts );
-    _stats.Reset( pktHdr->ts.tv_sec ); 
+    int dropCount = GetDropCount();
+    PrintStats( pktHdr->ts, dropCount );
+    _stats.Reset( pktHdr->ts.tv_sec, dropCount );
   }
 
   // update totals
@@ -160,7 +167,19 @@ void PcapListener::IncrementStats( Stats& stat, const pcap_pkthdr* pktHdr ) cons
   stat.max = std::max<int>( stat.max, pktHdr->len );
 }
 
-void PcapListener::PrintStats( const timeval& ts )
+int PcapListener::GetDropCount()
+{
+  // get pcap stats if they exist
+  pcap_stat pcapStats;
+  if( pcap_stats( _pcapFd, &pcapStats ) < 0 ) return 0;
+ 
+  /* if supported, we can get nic drops here
+   * pcapStats.ps_ifdrop 
+   */
+  return pcapStats.ps_drop; 
+}
+
+void PcapListener::PrintStats( const timeval& ts, const int dropCount )
 {
   // pretty formatting
   std::cout << "======== " << std::ctime( &ts.tv_sec ) << std::endl;
@@ -180,23 +199,11 @@ void PcapListener::PrintStats( const timeval& ts )
   std::cout << "IPv6 UDP Stats: " << std::endl;
   _stats.ipv6.Print();
 
-  // get pcap stats if they exist
-  pcap_stat pcapStats;
-  if( pcap_stats( _pcapFd, &pcapStats ) == 0 )
-  {
-    // looks like pcap_stats returns kernel drops due to socket bufs overflowing
-    // pcap stats is running tally of total drops, so we keep track of last total
-    // to get interval count
-    std::cout << "Drops: " << (pcapStats.ps_drop - _pcapDrops) << std::endl; 
-    std::cout << "Cumulative Drops: " << pcapStats.ps_drop << std::endl; 
-    
-    // keep track of total drops for next run
-    _pcapDrops = pcapStats.ps_drop;
-    
-    /* if supported, we can get nic drops here
-     * std::cout << "NIC Drops: " << pcapStats.ps_ifdrop << std::endl; 
-     */
-  }
+  // looks like pcap_stats returns kernel drops due to socket bufs overflowing
+  // pcap stats is running tally of total drops, so we keep track of last total
+  // to get interval count
+  std::cout << "Drops: " << (dropCount - _stats.drops) << std::endl; 
+  std::cout << "Cumulative Drops: " << dropCount << std::endl; 
 
   std::cout << std::endl;
 }
