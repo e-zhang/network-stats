@@ -75,6 +75,29 @@ Total (all network packets)
 Drops show RX buffer drops in the last interval
 Cumulative drops show total RX buffer drops since start of capture
 
+## Inducing Drops
+
+First thing I thought to try was to artifically backup the libpcap reads.
+However, even with large sleeps in the consuming threads, the OS did not record
+drops. My guess is that even if libpcap could not keep up with consuming the
+network capture, the drops would happen at the packet sniffing application level 
+and so from the kernels perspective, the actual consuming app didn't drop.
+
+After some googling around, I thought I could try using iptables to simulate
+drops. This did work in dropping packets, but again it did not trigger the count
+in netstat/ifconfig, so the drops must be happening at a higher level in this
+process.
+
+The next I tried was to mess with the socket buffers in sysctl.conf and the
+ethtool ring buffers. I turned down the buffers to as small as I could (without
+losing my ssh connection). From a separate box, I ran ping in flood mode. With
+some tuning with the preload (-l) and packetsize (-s) I managed to force RX drops
+on the interface that I captured. 
+
+Turns out, with those ping parameters, I could turn my socket buffers back to
+their original values. I had to turn up both number of preload packets and the
+packet sizes, but I could still induce RX drops in the kernel with pings.
+
 
 ## Future work
 
